@@ -55,16 +55,17 @@ class Ui_MainWindow(object):
 
 def readSettings():
     settings = QtCore.QSettings("SlideSlicer_config.ini", QtCore.QSettings.IniFormat)
+    helpStr = "*** Edit this file to configure settings and restart when necessary ***"
+    settings.setValue("HELP/help", helpStr)
     settings.setValue("ABOUT/name", "SlideSlicer")
     settings.setValue("ABOUT/version", "0.1.0")
-    settings.setValue("ABOUT/repository", "https://github.com/Mikumikunisiteageru/SlideSlicer")        
+    settings.setValue("ABOUT/repository", "https://github.com/Mikumikunisiteageru/SlideSlicer")
     path = settings.value("OUTPUT/path")
     if not path or not os.path.isdir(path):
         path = os.path.join(os.getcwd(), "SlideSlicer_output")
         if not os.path.isdir(path):
             os.mkdir(path)
         settings.setValue("OUTPUT/path", path)
-    os.chdir(path)
 
 if __name__ == '__main__':
     readSettings()
@@ -73,6 +74,7 @@ if __name__ == '__main__':
     mainWindow.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.SubWindow)
     ui = Ui_MainWindow()
     ui.setupUi(mainWindow)
+    ui.helpButton.clicked.connect(lambda: os.system("start SlideSlicer_config.ini"))
     ui.closeButton.clicked.connect(sys.exit)
     mainWindow.show()
     sys.exit(app.exec_())
