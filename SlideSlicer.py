@@ -56,46 +56,52 @@ class Ui_MainWindow(object):
         self.closeButton.setText(_translate("MainWindow", "x"))
 
 def readSettings(ui):
-    settings = QtCore.QSettings("SlideSlicer_config.ini", QtCore.QSettings.IniFormat)
+    ui.settings = QtCore.QSettings("SlideSlicer_config.ini", QtCore.QSettings.IniFormat)
     helpStr = "*** Edit this file to configure settings and restart when necessary ***"
-    settings.setValue("HELP/help", helpStr)
-    settings.setValue("ABOUT/name", "SlideSlicer")
-    settings.setValue("ABOUT/version", "0.1.0")
-    settings.setValue("ABOUT/repository", "https://github.com/Mikumikunisiteageru/SlideSlicer")
-    ui.path = settings.value("OUTPUT/path")
+    ui.settings.setValue("HELP/help", helpStr)
+    ui.settings.setValue("ABOUT/name", "SlideSlicer")
+    ui.settings.setValue("ABOUT/version", "0.1.0")
+    ui.settings.setValue("ABOUT/repository", "https://github.com/Mikumikunisiteageru/SlideSlicer")
+    ui.path = ui.settings.value("OUTPUT/path")
     if not ui.path or not os.path.isdir(ui.path):
         ui.path = os.path.join(os.getcwd(), "SlideSlicer_output")
         if not os.path.isdir(ui.path):
             os.mkdir(ui.path)
-        settings.setValue("OUTPUT/path", ui.path)
+        ui.settings.setValue("OUTPUT/path", ui.path)
     try:
-        string = settings.value("SCREENSHOT/everymillisecond")
+        string = ui.settings.value("SCREENSHOT/everymillisecond")
         ui.everyMillisecond = int(string)
         assert ui.everyMillisecond > 999
     except:
         ui.everyMillisecond = 2000
-        settings.setValue("SCREENSHOT/everymillisecond", ui.everyMillisecond)
+        ui.settings.setValue("SCREENSHOT/everymillisecond", ui.everyMillisecond)
     try:
-        string = settings.value("PAGEDETECTION/medium")
+        string = ui.settings.value("PAGEDETECTION/medium")
         ui.medium = int(string)
         assert 1 <= ui.medium <= 254
     except:
         ui.medium = 128
-        settings.setValue("PAGEDETECTION/medium", ui.medium)
+        ui.settings.setValue("PAGEDETECTION/medium", ui.medium)
     try:
-        string = settings.value("PAGEDETECTION/range")
+        string = ui.settings.value("PAGEDETECTION/range")
         ui.range = int(string)
         assert 1 <= ui.range <= 254
     except:
         ui.range = 154
-        settings.setValue("PAGEDETECTION/range", ui.range)
+        ui.settings.setValue("PAGEDETECTION/range", ui.range)
     try:
-        string = settings.value("PAGEDETECTION/threshold")
+        string = ui.settings.value("PAGEDETECTION/threshold")
         ui.threshold = float(string)
         assert 0.0 <= ui.threshold <= 1.0
     except:
         ui.threshold = 0.001
-        settings.setValue("PAGEDETECTION/threshold", ui.threshold)
+        ui.settings.setValue("PAGEDETECTION/threshold", ui.threshold)
+    try:
+        position = ui.settings.value("WINDOW/position")
+        assert isinstance(position, QtCore.QPoint)
+        ui.position = position
+    except:
+        ui.position = QtCore.QPoint(200, 200)
 
 def screenshot(ui):
     return ui.screen.grabWindow(0).toImage()
@@ -136,6 +142,10 @@ def periodStart(ui):
     ui.centralwidget.setStyleSheet(f"background-color: rgba(57, 197, 187, {ui.alpha})")
     ui.timer.start(ui.everyMillisecond)
 
+def suicide(ui):
+    ui.settings.setValue("WINDOW/position", mainWindow.pos())
+    sys.exit()
+    
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = QtWidgets.QMainWindow()
@@ -143,6 +153,7 @@ if __name__ == '__main__':
     ui = Ui_MainWindow()
     ui.setupUi(mainWindow)
     readSettings(ui)
+    mainWindow.move(ui.position)
     ui.alpha = 0
     ui.screen = QtWidgets.QApplication.primaryScreen()
     ui.timer = QtCore.QTimer()
@@ -152,6 +163,6 @@ if __name__ == '__main__':
     ui.oldImgFlattened = None
     ui.recordButton.clicked.connect(lambda: recordClick(ui))
     ui.helpButton.clicked.connect(lambda: os.system("start SlideSlicer_config.ini"))
-    ui.closeButton.clicked.connect(sys.exit)
+    ui.closeButton.clicked.connect(lambda: suicide(ui))
     mainWindow.show()
     sys.exit(app.exec_())
