@@ -6,6 +6,35 @@ import numpy as np
 from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+CONFIG = "SlideSlicer_config.ini"
+
+HELP = "*** Edit this file to configure settings and restart when necessary ***"
+
+NAME = "SlideSlicer"
+VERSION = "0.1.0"
+REPOSITORY = "https://github.com/Mikumikunisiteageru/SlideSlicer"
+
+SUBDIRECTORY = "SlideSlicer_output"
+
+EVERYXMILLISECOND = 2000
+EVERYXMILLISECOND_MIN = 999
+MEDIUM = 128
+MEDIUM_MIN = 1
+MEDIUM_MAX = 254
+RANGESIZE = 154
+RANGESIZE_MIN = 1
+RANGESIZE_MAX = 254
+THRESHOLD = 0.001
+THRESHOLD_MIN = 0.0
+THRESHOLD_MAX = 1.0
+
+POSITION_X = 200
+POSITION_Y = 200
+
+BC_R = 57
+BC_G = 197
+BC_B = 187
+
 class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
@@ -56,52 +85,51 @@ class Ui_MainWindow(object):
         self.closeButton.setText(_translate("MainWindow", "x"))
 
 def readSettings(ui):
-    ui.settings = QtCore.QSettings("SlideSlicer_config.ini", QtCore.QSettings.IniFormat)
-    helpStr = "*** Edit this file to configure settings and restart when necessary ***"
-    ui.settings.setValue("HELP/help", helpStr)
-    ui.settings.setValue("ABOUT/name", "SlideSlicer")
-    ui.settings.setValue("ABOUT/version", "0.1.0")
-    ui.settings.setValue("ABOUT/repository", "https://github.com/Mikumikunisiteageru/SlideSlicer")
+    ui.settings = QtCore.QSettings(CONFIG, QtCore.QSettings.IniFormat)
+    ui.settings.setValue("HELP/help", HELP)
+    ui.settings.setValue("ABOUT/name", NAME)
+    ui.settings.setValue("ABOUT/version", VERSION)
+    ui.settings.setValue("ABOUT/repository", REPOSITORY)
     ui.path = ui.settings.value("OUTPUT/path")
     if not ui.path or not os.path.isdir(ui.path):
-        ui.path = os.path.join(os.getcwd(), "SlideSlicer_output")
+        ui.path = os.path.join(os.getcwd(), SUBDIRECTORY)
         if not os.path.isdir(ui.path):
             os.mkdir(ui.path)
         ui.settings.setValue("OUTPUT/path", ui.path)
     try:
         string = ui.settings.value("SCREENSHOT/everyxmillisecond")
         ui.everyXMillisecond = int(string)
-        assert ui.everyXMillisecond > 999
+        assert ui.everyXMillisecond > EVERYXMILLISECOND_MIN
     except:
-        ui.everyXMillisecond = 2000
+        ui.everyXMillisecond = EVERYXMILLISECOND
         ui.settings.setValue("SCREENSHOT/everyxmillisecond", ui.everyXMillisecond)
     try:
         string = ui.settings.value("PAGEDETECTION/medium")
         ui.medium = int(string)
-        assert 1 <= ui.medium <= 254
+        assert MEDIUM_MIN <= ui.medium <= MEDIUM_MAX
     except:
-        ui.medium = 128
+        ui.medium = MEDIUM
         ui.settings.setValue("PAGEDETECTION/medium", ui.medium)
     try:
         string = ui.settings.value("PAGEDETECTION/rangesize")
         ui.rangesize = int(string)
-        assert 1 <= ui.rangesize <= 254
+        assert RANGESIZE_MIN <= ui.rangesize <= RANGESIZE_MAX
     except:
-        ui.rangesize = 154
+        ui.rangesize = RANGESIZE
         ui.settings.setValue("PAGEDETECTION/rangesize", ui.rangesize)
     try:
         string = ui.settings.value("PAGEDETECTION/threshold")
         ui.threshold = float(string)
-        assert 0.0 <= ui.threshold <= 1.0
+        assert THRESHOLD_MIN <= ui.threshold <= THRESHOLD_MAX
     except:
-        ui.threshold = 0.001
+        ui.threshold = THRESHOLD
         ui.settings.setValue("PAGEDETECTION/threshold", ui.threshold)
     try:
         position = ui.settings.value("WINDOW/position")
         assert isinstance(position, QtCore.QPoint)
         ui.position = position
     except:
-        ui.position = QtCore.QPoint(200, 200)
+        ui.position = QtCore.QPoint(POSITION_X, POSITION_Y)
 
 def screenshot(ui):
     return ui.screen.grabWindow(0).toImage()
@@ -139,7 +167,7 @@ def periodStart(ui):
             ui.alpha = ui.alpha * 2 // 5
     else:
         ui.alpha = ui.alpha * 2 // 5
-    ui.centralwidget.setStyleSheet(f"background-color: rgba(57, 197, 187, {ui.alpha})")
+    ui.centralwidget.setStyleSheet(f"background-color: rgba(BC_R, BC_G, BC_B, {ui.alpha})")
     ui.timer.start(ui.everyXMillisecond)
 
 def terminate(ui):
