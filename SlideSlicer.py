@@ -4,7 +4,7 @@ import os
 import sys
 import numpy as np
 from datetime import datetime
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 CONFIG = "SlideSlicer_config.ini"
 
