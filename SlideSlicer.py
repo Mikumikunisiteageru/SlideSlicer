@@ -128,6 +128,12 @@ def periodStart(ui):
         if newPage:
             img.save(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
             ui.oldImgFlattened = imgFlattened
+            ui.alpha = 255
+        else:
+            ui.alpha = ui.alpha * 2 // 5
+    else:
+        ui.alpha = ui.alpha * 2 // 5
+    ui.centralwidget.setStyleSheet(f"background-color: rgba(57, 197, 187, {ui.alpha})")
     ui.timer.start(ui.everyMillisecond)
 
 if __name__ == '__main__':
@@ -135,14 +141,15 @@ if __name__ == '__main__':
     mainWindow = QtWidgets.QMainWindow()
     mainWindow.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.SubWindow)
     ui = Ui_MainWindow()
+    ui.setupUi(mainWindow)
     readSettings(ui)
+    ui.alpha = 0
     ui.screen = QtWidgets.QApplication.primaryScreen()
     ui.timer = QtCore.QTimer()
     ui.timer.timeout.connect(lambda: periodStart(ui))
     ui.recording = False
     periodStart(ui)
     ui.oldImgFlattened = None
-    ui.setupUi(mainWindow)
     ui.recordButton.clicked.connect(lambda: recordClick(ui))
     ui.helpButton.clicked.connect(lambda: os.system("start SlideSlicer_config.ini"))
     ui.closeButton.clicked.connect(sys.exit)
