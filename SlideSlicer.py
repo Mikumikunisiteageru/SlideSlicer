@@ -142,7 +142,7 @@ def periodStart(ui):
     ui.centralwidget.setStyleSheet(f"background-color: rgba(57, 197, 187, {ui.alpha})")
     ui.timer.start(ui.everyMillisecond)
 
-def suicide(ui):
+def terminate(ui):
     ui.settings.setValue("WINDOW/position", mainWindow.pos())
     sys.exit()
     
@@ -163,6 +163,6 @@ if __name__ == '__main__':
     ui.oldImgFlattened = None
     ui.recordButton.clicked.connect(lambda: recordClick(ui))
     ui.helpButton.clicked.connect(lambda: os.system("start SlideSlicer_config.ini"))
-    ui.closeButton.clicked.connect(lambda: suicide(ui))
+    ui.closeButton.clicked.connect(lambda: terminate(ui))
     mainWindow.show()
     sys.exit(app.exec_())
