@@ -110,30 +110,25 @@ def recordClick(ui):
         periodStart(ui)
 
 def periodStart(ui):
-    img = screenshot(ui)
-    height = img.height()
-    width = img.width()
-    depth = img.depth() // 8
-    length = height * width * depth
-    buffer = img.constBits()
-    buffer.setsize(length)
-    imgFlattened = np.ndarray(shape=(length,), buffer=buffer, dtype=np.uint8).copy()
-    if not isinstance(ui.oldImgFlattened, type(None)):
-        condition1 = np.logical_xor(imgFlattened > ui.medium, ui.oldImgFlattened > ui.medium)
-        condition2 = np.abs(imgFlattened - ui.oldImgFlattened) > ui.range
-        newPage = np.mean(np.logical_and(condition1, condition2)) > ui.threshold
-        print(newPage)
-    else:
-        newPage = True
-    if newPage:
-        img.save(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
-        print(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
-        ui.oldImgFlattened = imgFlattened
-    ui.timer.start(ui.everyMillisecond)
-
-def periodRefresh(ui):
     if ui.recording:
-        periodStart(ui)
+        img = screenshot(ui)
+        height = img.height()
+        width = img.width()
+        depth = img.depth() // 8
+        length = height * width * depth
+        buffer = img.constBits()
+        buffer.setsize(length)
+        imgFlattened = np.ndarray(shape=(length,), buffer=buffer, dtype=np.uint8).copy()
+        if not isinstance(ui.oldImgFlattened, type(None)):
+            condition1 = np.logical_xor(imgFlattened > ui.medium, ui.oldImgFlattened > ui.medium)
+            condition2 = np.abs(imgFlattened - ui.oldImgFlattened) > ui.range
+            newPage = np.mean(np.logical_and(condition1, condition2)) > ui.threshold
+        else:
+            newPage = True
+        if newPage:
+            img.save(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
+            ui.oldImgFlattened = imgFlattened
+    ui.timer.start(ui.everyMillisecond)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -143,8 +138,9 @@ if __name__ == '__main__':
     readSettings(ui)
     ui.screen = QtWidgets.QApplication.primaryScreen()
     ui.timer = QtCore.QTimer()
-    ui.timer.timeout.connect(lambda: periodRefresh(ui))
+    ui.timer.timeout.connect(lambda: periodStart(ui))
     ui.recording = False
+    periodStart(ui)
     ui.oldImgFlattened = None
     ui.setupUi(mainWindow)
     ui.recordButton.clicked.connect(lambda: recordClick(ui))
