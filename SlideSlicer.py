@@ -69,12 +69,12 @@ def readSettings(ui):
             os.mkdir(ui.path)
         ui.settings.setValue("OUTPUT/path", ui.path)
     try:
-        string = ui.settings.value("SCREENSHOT/everymillisecond")
-        ui.everyMillisecond = int(string)
-        assert ui.everyMillisecond > 999
+        string = ui.settings.value("SCREENSHOT/everyxmillisecond")
+        ui.everyXMillisecond = int(string)
+        assert ui.everyXMillisecond > 999
     except:
-        ui.everyMillisecond = 2000
-        ui.settings.setValue("SCREENSHOT/everymillisecond", ui.everyMillisecond)
+        ui.everyXMillisecond = 2000
+        ui.settings.setValue("SCREENSHOT/everyxmillisecond", ui.everyXMillisecond)
     try:
         string = ui.settings.value("PAGEDETECTION/medium")
         ui.medium = int(string)
@@ -83,12 +83,12 @@ def readSettings(ui):
         ui.medium = 128
         ui.settings.setValue("PAGEDETECTION/medium", ui.medium)
     try:
-        string = ui.settings.value("PAGEDETECTION/range")
-        ui.range = int(string)
-        assert 1 <= ui.range <= 254
+        string = ui.settings.value("PAGEDETECTION/rangesize")
+        ui.rangesize = int(string)
+        assert 1 <= ui.rangesize <= 254
     except:
-        ui.range = 154
-        ui.settings.setValue("PAGEDETECTION/range", ui.range)
+        ui.rangesize = 154
+        ui.settings.setValue("PAGEDETECTION/rangesize", ui.rangesize)
     try:
         string = ui.settings.value("PAGEDETECTION/threshold")
         ui.threshold = float(string)
@@ -127,7 +127,7 @@ def periodStart(ui):
         imgFlattened = np.ndarray(shape=(length,), buffer=buffer, dtype=np.uint8).copy()
         if not isinstance(ui.oldImgFlattened, type(None)):
             condition1 = np.logical_xor(imgFlattened > ui.medium, ui.oldImgFlattened > ui.medium)
-            condition2 = np.abs(imgFlattened - ui.oldImgFlattened) > ui.range
+            condition2 = np.abs(imgFlattened - ui.oldImgFlattened) > ui.rangesize
             newPage = np.mean(np.logical_and(condition1, condition2)) > ui.threshold
         else:
             newPage = True
@@ -140,7 +140,7 @@ def periodStart(ui):
     else:
         ui.alpha = ui.alpha * 2 // 5
     ui.centralwidget.setStyleSheet(f"background-color: rgba(57, 197, 187, {ui.alpha})")
-    ui.timer.start(ui.everyMillisecond)
+    ui.timer.start(ui.everyXMillisecond)
 
 def terminate(ui):
     ui.settings.setValue("WINDOW/position", mainWindow.pos())
