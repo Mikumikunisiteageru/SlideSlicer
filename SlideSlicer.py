@@ -1,5 +1,6 @@
 # 20230331
 
+import os
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -52,12 +53,26 @@ class Ui_MainWindow(object):
         self.helpButton.setText(_translate("MainWindow", "?"))
         self.closeButton.setText(_translate("MainWindow", "x"))
 
+def readSettings():
+    settings = QtCore.QSettings("SlideSlicer_config.ini", QtCore.QSettings.IniFormat)
+    settings.setValue("ABOUT/name", "SlideSlicer")
+    settings.setValue("ABOUT/version", "0.1.0")
+    settings.setValue("ABOUT/repository", "https://github.com/Mikumikunisiteageru/SlideSlicer")        
+    path = settings.value("OUTPUT/path")
+    if not path or not os.path.isdir(path):
+        path = os.path.join(os.getcwd(), "SlideSlicer_output")
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        settings.setValue("OUTPUT/path", path)
+    os.chdir(path)
+
 if __name__ == '__main__':
+    readSettings()
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = QtWidgets.QMainWindow()
     mainWindow.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.SubWindow)
     ui = Ui_MainWindow()
     ui.setupUi(mainWindow)
-    ui.pushButton_3.clicked.connect(sys.exit)
+    ui.closeButton.clicked.connect(sys.exit)
     mainWindow.show()
     sys.exit(app.exec_())
