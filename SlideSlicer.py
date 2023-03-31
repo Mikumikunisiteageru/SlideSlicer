@@ -167,7 +167,7 @@ def periodStart(ui):
             ui.alpha = ui.alpha * 2 // 5
     else:
         ui.alpha = ui.alpha * 2 // 5
-    ui.centralwidget.setStyleSheet(f"background-color: rgba(BC_R, BC_G, BC_B, {ui.alpha})")
+    ui.centralwidget.setStyleSheet(f"background-color: rgba({BC_R}, {BC_G}, {BC_B}, {ui.alpha})")
     ui.timer.start(ui.everyXMillisecond)
 
 def terminate(ui):
