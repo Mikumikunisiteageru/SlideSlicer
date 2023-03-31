@@ -70,11 +70,32 @@ def readSettings(ui):
         settings.setValue("OUTPUT/path", ui.path)
     try:
         string = settings.value("SCREENSHOT/everymillisecond")
-        ui.s = int(string)
-        assert ui.s > 999
+        ui.everyMillisecond = int(string)
+        assert ui.everyMillisecond > 999
     except:
-        ui.s = 2000
-        settings.setValue("SCREENSHOT/everymillisecond", ui.s)
+        ui.everyMillisecond = 2000
+        settings.setValue("SCREENSHOT/everymillisecond", ui.everyMillisecond)
+    try:
+        string = settings.value("PAGEDETECTION/medium")
+        ui.medium = int(string)
+        assert 1 <= ui.medium <= 254
+    except:
+        ui.medium = 128
+        settings.setValue("PAGEDETECTION/medium", ui.medium)
+    try:
+        string = settings.value("PAGEDETECTION/range")
+        ui.range = int(string)
+        assert 1 <= ui.range <= 254
+    except:
+        ui.range = 154
+        settings.setValue("PAGEDETECTION/range", ui.range)
+    try:
+        string = settings.value("PAGEDETECTION/threshold")
+        ui.threshold = float(string)
+        assert 0.0 <= ui.threshold <= 1.0
+    except:
+        ui.threshold = 0.001
+        settings.setValue("PAGEDETECTION/threshold", ui.threshold)
 
 def screenshot(ui):
     return ui.screen.grabWindow(0).toImage()
@@ -90,9 +111,25 @@ def recordClick(ui):
 
 def periodStart(ui):
     img = screenshot(ui)
-    img.save(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
-    # print(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
-    ui.timer.start(ui.s)
+    height = img.height()
+    width = img.width()
+    depth = img.depth() // 8
+    length = height * width * depth
+    buffer = img.constBits()
+    buffer.setsize(length)
+    imgFlattened = np.ndarray(shape=(length,), buffer=buffer, dtype=np.uint8).copy()
+    if not isinstance(ui.oldImgFlattened, type(None)):
+        condition1 = np.logical_xor(imgFlattened > ui.medium, ui.oldImgFlattened > ui.medium)
+        condition2 = np.abs(imgFlattened - ui.oldImgFlattened) > ui.range
+        newPage = np.mean(np.logical_and(condition1, condition2)) > ui.threshold
+        print(newPage)
+    else:
+        newPage = True
+    if newPage:
+        img.save(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
+        print(os.path.join(ui.path, datetime.now().strftime("%Y%m%d_%H%M%S.png")))
+        ui.oldImgFlattened = imgFlattened
+    ui.timer.start(ui.everyMillisecond)
 
 def periodRefresh(ui):
     if ui.recording:
@@ -108,6 +145,7 @@ if __name__ == '__main__':
     ui.timer = QtCore.QTimer()
     ui.timer.timeout.connect(lambda: periodRefresh(ui))
     ui.recording = False
+    ui.oldImgFlattened = None
     ui.setupUi(mainWindow)
     ui.recordButton.clicked.connect(lambda: recordClick(ui))
     ui.helpButton.clicked.connect(lambda: os.system("start SlideSlicer_config.ini"))
