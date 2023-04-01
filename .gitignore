@@ -3,7 +3,6 @@
 __pycache__/
 build/
 dist/
-SlideSlicer.spec
 
 SlideSlicer_output/
 SlideSlicer_config.ini
