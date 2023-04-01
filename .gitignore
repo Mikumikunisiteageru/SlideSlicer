@@ -4,5 +4,7 @@ __pycache__/
 build/
 dist/
 
+virtualenv/
+
 SlideSlicer_output/
 SlideSlicer_config.ini
