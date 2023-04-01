@@ -4,7 +4,8 @@ import os
 import sys
 import numpy as np
 from datetime import datetime
-from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QSize, QMetaObject, QCoreApplication, QSettings, QPoint, Qt, QTimer
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QSizePolicy, QApplication, QMainWindow
 
 CONFIG = "SlideSlicer_config.ini"
 
@@ -40,52 +41,52 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(150, 50)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout = QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.recordButton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.recordButton = QPushButton(self.centralwidget)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.recordButton.sizePolicy().hasHeightForWidth())
         self.recordButton.setSizePolicy(sizePolicy)
-        self.recordButton.setMinimumSize(QtCore.QSize(50, 50))
+        self.recordButton.setMinimumSize(QSize(50, 50))
         self.recordButton.setObjectName("recordButton")
         self.horizontalLayout.addWidget(self.recordButton)
-        self.helpButton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.helpButton = QPushButton(self.centralwidget)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.helpButton.sizePolicy().hasHeightForWidth())
         self.helpButton.setSizePolicy(sizePolicy)
-        self.helpButton.setMinimumSize(QtCore.QSize(50, 50))
+        self.helpButton.setMinimumSize(QSize(50, 50))
         self.helpButton.setObjectName("helpButton")
         self.horizontalLayout.addWidget(self.helpButton)
-        self.closeButton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.closeButton = QPushButton(self.centralwidget)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.closeButton.sizePolicy().hasHeightForWidth())
         self.closeButton.setSizePolicy(sizePolicy)
-        self.closeButton.setMinimumSize(QtCore.QSize(50, 50))
+        self.closeButton.setMinimumSize(QSize(50, 50))
         self.closeButton.setObjectName("closeButton")
         self.horizontalLayout.addWidget(self.closeButton)
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
+        _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "SlideSlicer"))
         self.recordButton.setText(_translate("MainWindow", "="))
         self.helpButton.setText(_translate("MainWindow", "?"))
         self.closeButton.setText(_translate("MainWindow", "x"))
 
 def readSettings(ui):
-    ui.settings = QtCore.QSettings(CONFIG, QtCore.QSettings.IniFormat)
+    ui.settings = QSettings(CONFIG, QSettings.IniFormat)
     ui.settings.setValue("HELP/help", HELP)
     ui.settings.setValue("ABOUT/name", NAME)
     ui.settings.setValue("ABOUT/version", VERSION)
@@ -126,10 +127,10 @@ def readSettings(ui):
         ui.settings.setValue("PAGEDETECTION/threshold", ui.threshold)
     try:
         position = ui.settings.value("WINDOW/position")
-        assert isinstance(position, QtCore.QPoint)
+        assert isinstance(position, QPoint)
         ui.position = position
     except:
-        ui.position = QtCore.QPoint(POSITION_X, POSITION_Y)
+        ui.position = QPoint(POSITION_X, POSITION_Y)
 
 def screenshot(ui):
     return ui.screen.grabWindow(0).toImage()
@@ -175,16 +176,16 @@ def terminate(ui):
     sys.exit()
     
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    mainWindow = QtWidgets.QMainWindow()
-    mainWindow.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.SubWindow)
+    app = QApplication(sys.argv)
+    mainWindow = QMainWindow()
+    mainWindow.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.SubWindow)
     ui = Ui_MainWindow()
     ui.setupUi(mainWindow)
     readSettings(ui)
     mainWindow.move(ui.position)
     ui.alpha = 0
-    ui.screen = QtWidgets.QApplication.primaryScreen()
-    ui.timer = QtCore.QTimer()
+    ui.screen = QApplication.primaryScreen()
+    ui.timer = QTimer()
     ui.timer.timeout.connect(lambda: periodStart(ui))
     ui.recording = False
     periodStart(ui)
